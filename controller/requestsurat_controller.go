@@ -48,10 +48,18 @@ func (c *RequestSuratController) CreateRequestSurat(w http.ResponseWriter, r *ht
 
 	err := c.service.RequestSurat(input)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error": err.Error(),
+		})
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte("Permintaan surat berhasil dikirim."))
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Permintaan surat berhasil dikirim.",
+	})
 }
+

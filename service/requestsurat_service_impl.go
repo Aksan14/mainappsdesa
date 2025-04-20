@@ -5,6 +5,7 @@ import (
 	"godesaapps/dto"
 	"godesaapps/model"
 	"godesaapps/repository"
+	"time"
 )
 
 type requestSuratServiceImpl struct {
@@ -28,41 +29,50 @@ func (s *requestSuratServiceImpl) FindByNik(nik string) (*model.DataWarga, error
 	return warga, nil
 }
 
-
-// Service function untuk menyalin data warga ke request surat
 func (s *requestSuratServiceImpl) RequestSurat(input dto.RequestSuratDTO) error {
-	// Mendapatkan data warga berdasarkan NIK
 	warga, err := s.repo.FindDataWargaByNIK(input.NIK)
 	if err != nil {
-		return fmt.Errorf("data warga tidak ditemukan: %v", err)
+		return fmt.Errorf("gagal mencari data warga dengan NIK %s: %v", input.NIK, err)
 	}
 
-	// Membuat objek request surat berdasarkan data warga
+	if warga == nil {
+		return fmt.Errorf("data warga dengan NIK %s tidak ditemukan", input.NIK)
+	}
+
 	request := model.RequestSuratWarga{
-		IDWarga:          warga.ID,               // Mengambil ID warga
-		JenisSurat:       input.JenisSurat,       // Jenis surat diinput dari request                 // Tanggal selesai, bisa diset nanti
-		NIK:              warga.NIK,              // NIK warga yang diambil dari data warga
-		NamaLengkap:      warga.NamaLengkap,      // Nama lengkap warga yang diambil dari data warga
-		TempatLahir:      warga.TempatLahir,      // Tempat lahir warga
-		TanggalLahir:     warga.TanggalLahir,     // Tanggal lahir warga
-		JenisKelamin:     warga.JenisKelamin,     // Jenis kelamin warga
-		Pendidikan:       warga.Pendidikan,       // Pendidikan warga
-		Pekerjaan:        warga.Pekerjaan,        // Pekerjaan warga
-		Agama:            warga.Agama,            // Agama warga
-		StatusPernikahan: warga.StatusPernikahan, // Status pernikahan warga
-		Kewarganegaraan:  warga.Kewarganegaraan,  // Kewarganegaraan warga
-		Alamat:           warga.Alamat,           // Alamat warga
+		IDWarga:          warga.ID,
+		JenisSurat:       input.JenisSurat,
+		Status:           "Pending",
+		NomorSurat:       "",
+		Keterangan:       input.Keterangan,
+		TanggalPengajuan: time.Now(),
+		TanggalSelesai:   nil,
+		NIK:              warga.NIK,
+		NamaLengkap:      warga.NamaLengkap,
+		TempatLahir:      warga.TempatLahir,
+		TanggalLahir:     warga.TanggalLahir,
+		JenisKelamin:     warga.JenisKelamin,
+		Pendidikan:       warga.Pendidikan,
+		Pekerjaan:        warga.Pekerjaan,
+		Agama:            warga.Agama,
+		StatusPernikahan: warga.StatusPernikahan,
+		Kewarganegaraan:  warga.Kewarganegaraan,
+		Alamat:           warga.Alamat,
+		Penghasilan:      input.Penghasilan,
+		LamaTinggal:      input.LamaTinggal,
+		NamaUsaha:        input.NamaUsaha,
+		JenisUsaha:       input.JenisUsaha,
+		AlamatUsaha:      input.AlamatUsaha,
+		AlamatTujuan:     input.AlamatTujuan,
+		AlasanPindah:     input.AlasanPindah,
+		KeperluanPindah:  input.KeperluanPindah,
+		TujuanPindah:     input.TujuanPindah,
 	}
 
-	// Menyimpan data request surat ke database
 	err = s.repo.InsertRequestSurat(request)
 	if err != nil {
-		return fmt.Errorf("gagal menyimpan permintaan surat: %v", err)
+		return fmt.Errorf("gagal menyimpan permintaan surat untuk warga NIK %s: %v", input.NIK, err)
 	}
 
 	return nil
 }
-
-
-
-

@@ -1,8 +1,6 @@
 package model
 
-import (
-	"time"
-)
+import "time"
 
 type RequestSuratWarga struct {
 	IDPengajuan      int        `json:"id_pengajuan"`
